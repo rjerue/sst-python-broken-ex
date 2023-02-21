@@ -1,5 +1,5 @@
 import json
-from .db.notes import getNotes
+from src.db.notes import getNotes
 
 def main(event, context):
   notes = getNotes()

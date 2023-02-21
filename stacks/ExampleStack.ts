@@ -1,18 +1,36 @@
-import { Api, StackContext } from "sst/constructs";
+import { Api, StackContext, Function } from "sst/constructs";
 
 export function ExampleStack({ stack }: StackContext) {
   // Create the HTTP API
 
-  const api = new Api(stack, "Api", {
-    defaults: {
-      function: {
-        runtime: "python3.9",
+  const makeHandler = (id: string, filePath: string, handler: string) => {
+    const lambdaFunction = new Function(stack, id, {
+      handler: `${filePath}${handler}`,
+      runtime: "python3.8",
+      python: {
+        installCommands: ["pip install -r requirements.txt"],
       },
-    },
+    });
+    return lambdaFunction;
+  };
+
+  const api = new Api(stack, "Api", {
     routes: {
-      "GET /notes": "packages/functions/list.main",
-      "GET /notes/{id}": "packages/functions/get.main",
-      "PUT /notes/{id}": "packages/functions/update.main",
+      "GET /notes": makeHandler(
+        "GetNotes",
+        "packages/functions/src/",
+        "list.main"
+      ),
+      "GET /notes/{id}": makeHandler(
+        "GetNotesById",
+        "packages/functions/src/",
+        "get.main"
+      ),
+      "PUT /notes/{id}": makeHandler(
+        "PutNotesById",
+        "packages/functions/src/",
+        "update.main"
+      ),
     },
   });
 

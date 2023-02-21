@@ -1,5 +1,5 @@
 import { SSTConfig } from "sst";
-import { Api } from "sst/constructs";
+import { Api, Function } from "sst/constructs";
 import { ExampleStack } from "./stacks/ExampleStack";
 
 export default {
@@ -12,13 +12,11 @@ export default {
   stacks(app) {
     app.stack(function Stack({ stack }) {
       const api = new Api(stack, "api", {
-        defaults: {
-          function: {
-            runtime: "python3.9",
-          },
-        },
         routes: {
-          "GET /": "packages/hello/lambda.handler",
+          "GET /": new Function(stack, "GET_HELLO", {
+            runtime: "python3.9",
+            handler: "packages/hello/src/lambda.handler",
+          }),
         },
       });
       stack.addOutputs({
